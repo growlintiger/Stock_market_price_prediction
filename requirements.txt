@@ -1,4 +1,3 @@
-# requirements.txt
 flask
 numpy
 pandas
