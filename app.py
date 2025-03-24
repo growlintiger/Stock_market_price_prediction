@@ -52,17 +52,31 @@ def train_model(X, y):
     model.fit(X, y, batch_size=32, epochs=10)
     return model
 
+# Function to Display Scrolling Ticker
+def display_ticker():
+    ticker_placeholder = st.empty()
+
+    try:
+        ticker_data = " | ".join([
+            f"<span style='color:{'green' if yf.Ticker(stock).history(period='1d')['Close'].iloc[-1] >= yf.Ticker(stock).history(period='2d')['Close'].iloc[0] else 'red'}'>{stock}: {yf.Ticker(stock).history(period='1d')['Close'].iloc[-1]:.2f}</span>"
+            for stock in STOCKS
+        ])
+        ticker_placeholder.markdown(f"<marquee>{ticker_data}</marquee>", unsafe_allow_html=True)
+        return ticker_placeholder
+    except Exception as e:
+        ticker_placeholder.empty()
+        st.error(f"Error fetching ticker data: {e}")
+        return None
+
 # Streamlit Web Interface
 def main():
     st.title("Stock Price Prediction App")
 
-    # Scrolling Ticker Bar with Top Stocks (Color Coded)
-    ticker_data = " | ".join([
-        f"<span style='color:{'green' if yf.Ticker(stock).history(period='1d')['Close'].iloc[-1] >= yf.Ticker(stock).history(period='2d')['Close'].iloc[0] else 'red'}'>{stock}: {yf.Ticker(stock).history(period='1d')['Close'].iloc[-1]:.2f}</span>"
-        for stock in STOCKS
-    ])
-    st.markdown(f"<marquee>{ticker_data}</marquee>", unsafe_allow_html=True)
+    # Display Ticker
+    st.write("### Live Stock Prices")
+    ticker_placeholder = display_ticker()
 
+    # User Input
     selected_stock = st.selectbox("Select a Stock Ticker", STOCKS)
     custom_ticker = st.text_input("Or Enter Custom Stock Ticker (e.g., TATAMOTORS.NS)")
     ticker = custom_ticker.strip() if custom_ticker else selected_stock
@@ -70,6 +84,9 @@ def main():
     data = get_stock_data(ticker)
 
     if st.button("Predict"):
+        if ticker_placeholder:
+            ticker_placeholder.empty()  # Remove the ticker on Predict click
+
         X, y, scaler = prepare_data(data)
         X = reshape_data(X)
         model = train_model(X, y)
@@ -84,12 +101,14 @@ def main():
         predictions = scaler.inverse_transform(predictions)
         mse = mean_squared_error(data['Price'].values[-len(predictions):], predictions)
 
+        # Get Latest Price using Accurate Data
         latest_price = yf.Ticker(ticker).history(period='1d')['Close'].iloc[-1]
-        prev_day_price = data['Price'].iloc[-2]
+        prev_day_price = yf.Ticker(ticker).history(period='2d')['Close'].iloc[0]
         actual_trend_color = 'green' if latest_price > prev_day_price else 'red'
         price_trend = "⬆ Up" if predicted_price > latest_price else "⬇ Down"
         price_color = "green" if predicted_price > latest_price else "red"
 
+        # Display Results
         st.markdown(f"### <span style='color:{actual_trend_color}'>Latest Price: ${latest_price:.2f}</span>", unsafe_allow_html=True)
         st.markdown(f"### <span style='color:{price_color}'>Predicted Next Day Price: ${predicted_price:.2f} ({price_trend})</span>", unsafe_allow_html=True)
         st.write(f"### Model MSE (Lower is better): {mse:.4f}")
