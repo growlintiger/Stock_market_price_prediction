@@ -6,7 +6,6 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 import streamlit as st
 import plotly.graph_objects as go
-import time
 
 # List of popular stock tickers for dropdown selection (including Indian stocks)
 STOCKS = [
@@ -52,28 +51,18 @@ def train_model(X, y):
     model.compile(optimizer='adam', loss='mean_squared_error')
     model.fit(X, y, batch_size=32, epochs=10)
     return model
-def display_ticker():
-    ticker_placeholder = st.empty()
-
-    try:
-        while True:
-            ticker_data = " | ".join([
-                f"<span style='color:{'green' if yf.Ticker(stock).history(period='1d')['Close'].iloc[-1] >= yf.Ticker(stock).history(period='2d')['Close'].iloc[0] else 'red'}'>{stock}: {yf.Ticker(stock).history(period='1d')['Close'].iloc[-1]:.2f}</span>"
-                for stock in STOCKS
-            ])
-            ticker_placeholder.markdown(f"<marquee>{ticker_data}</marquee>", unsafe_allow_html=True)
-            time.sleep(5)
-            st.rerun()  # Refresh every 5 seconds
-    except Exception as e:
-        ticker_placeholder.error(f"Error fetching ticker data: {e}")
 
 # Streamlit Web Interface
 def main():
     st.title("Stock Price Prediction App")
 
-    # Start the Ticker in the Background
-    st.write("### Live Stock Prices")
-    display_ticker()
+    # Scrolling Ticker Bar with Top Stocks (Color Coded)
+    ticker_data = " | ".join([
+        f"<span style='color:{'green' if yf.Ticker(stock).history(period='1d')['Close'].iloc[-1] >= yf.Ticker(stock).history(period='2d')['Close'].iloc[0] else 'red'}'>{stock}: {yf.Ticker(stock).history(period='1d')['Close'].iloc[-1]:.2f}</span>"
+        for stock in STOCKS
+    ])
+    st.markdown(f"<marquee>{ticker_data}</marquee>", unsafe_allow_html=True)
+
     selected_stock = st.selectbox("Select a Stock Ticker", STOCKS)
     custom_ticker = st.text_input("Or Enter Custom Stock Ticker (e.g., TATAMOTORS.NS)")
     ticker = custom_ticker.strip() if custom_ticker else selected_stock
