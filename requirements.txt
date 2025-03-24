@@ -1,0 +1,11 @@
+# requirements.txt
+flask
+numpy
+pandas
+scikit-learn
+matplotlib
+seaborn
+yfinance
+keras
+tensorflow
+requests
