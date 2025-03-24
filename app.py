@@ -84,7 +84,7 @@ def main():
         predictions = scaler.inverse_transform(predictions)
         mse = mean_squared_error(data['Price'].values[-len(predictions):], predictions)
 
-        latest_price = yf.Ticker(stock).history(period='1d')['Close'].iloc[-1]
+        latest_price = yf.Ticker(ticker).history(period='1d')['Close'].iloc[-1]
         prev_day_price = data['Price'].iloc[-2]
         actual_trend_color = 'green' if latest_price > prev_day_price else 'red'
         price_trend = "⬆ Up" if predicted_price > latest_price else "⬇ Down"
