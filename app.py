@@ -54,17 +54,17 @@ def train_model(X, y):
 def display_ticker():
     ticker_placeholder = st.empty()
 
-    while True:
-        try:
+    try:
+        while True:
             ticker_data = " | ".join([
                 f"<span style='color:{'green' if yf.Ticker(stock).history(period='1d')['Close'].iloc[-1] >= yf.Ticker(stock).history(period='2d')['Close'].iloc[0] else 'red'}'>{stock}: {yf.Ticker(stock).history(period='1d')['Close'].iloc[-1]:.2f}</span>"
                 for stock in STOCKS
             ])
             ticker_placeholder.markdown(f"<marquee>{ticker_data}</marquee>", unsafe_allow_html=True)
-        except Exception as e:
-            ticker_placeholder.error(f"Error fetching ticker data: {e}")
-        
-        time.sleep(5)  # Update every 5 seconds
+            time.sleep(5)
+            st.rerun()  # Refresh every 5 seconds
+    except Exception as e:
+        ticker_placeholder.error(f"Error fetching ticker data: {e}")
 
 # Streamlit Web Interface
 def main():
