@@ -8,3 +8,4 @@ yfinance
 keras
 tensorflow
 requests
+plotly
