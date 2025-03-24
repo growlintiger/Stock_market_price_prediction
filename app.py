@@ -6,6 +6,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 import streamlit as st
 import plotly.graph_objects as go
+import time
 
 # List of popular stock tickers for dropdown selection (including Indian stocks)
 STOCKS = [
