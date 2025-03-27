@@ -84,7 +84,7 @@ def main():
     selected_stock = st.selectbox("Select a Stock Ticker", STOCKS)
     custom_ticker = st.text_input("Or Enter Custom Stock Ticker (e.g., TATAMOTORS.NS)")
     ticker = custom_ticker.strip() if custom_ticker else selected_stock
-    
+    currency_symbol = get_currency_symbol(selected_stock)
     data = get_stock_data(ticker)
         
     if st.button("Predict"):
