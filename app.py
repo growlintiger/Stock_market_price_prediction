@@ -80,9 +80,14 @@ def main():
     selected_stock = st.selectbox("Select a Stock Ticker", STOCKS)
     custom_ticker = st.text_input("Or Enter Custom Stock Ticker (e.g., TATAMOTORS.NS)")
     ticker = custom_ticker.strip() if custom_ticker else selected_stock
-
+    
     data = get_stock_data(ticker)
-
+    def get_currency_symbol(ticker):
+        if ticker.endswith('.NS') or ticker.endswith('.BO'):
+            return '₹'
+        else:
+            return '$'
+        
     if st.button("Predict"):
         if ticker_placeholder:
             ticker_placeholder.empty()  # Remove the ticker on Predict click
@@ -109,8 +114,8 @@ def main():
         price_color = "green" if predicted_price > latest_price else "red"
 
         # Display Results
-        st.markdown(f"### <span style='color:{actual_trend_color}'>Latest Price: ${latest_price:.2f}</span>", unsafe_allow_html=True)
-        st.markdown(f"### <span style='color:{price_color}'>Predicted Next Day Price: ${predicted_price:.2f} ({price_trend})</span>", unsafe_allow_html=True)
+        st.markdown(f"### <span style='color:{actual_trend_color}'>Latest Price: {currency_symbol}{latest_price:.2f}</span>", unsafe_allow_html=True)
+        st.markdown(f"### <span style='color:{price_color}'>Predicted Next Day Price: {currency_symbol}{predicted_price:.2f} ({price_trend})</span>", unsafe_allow_html=True)
         st.write(f"### Model MSE (Lower is better): {mse:.4f}")
 
         # Improved Visuals using Plotly
