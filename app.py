@@ -67,7 +67,11 @@ def display_ticker():
         ticker_placeholder.empty()
         st.error(f"Error fetching ticker data: {e}")
         return None
-
+def get_currency_symbol(ticker):
+        if ticker.endswith('.NS') or ticker.endswith('.BO'):
+            return '₹'
+        else:
+            return '$'
 # Streamlit Web Interface
 def main():
     st.title("Stock Price Prediction App")
@@ -82,11 +86,6 @@ def main():
     ticker = custom_ticker.strip() if custom_ticker else selected_stock
     
     data = get_stock_data(ticker)
-    def get_currency_symbol(ticker):
-        if ticker.endswith('.NS') or ticker.endswith('.BO'):
-            return '₹'
-        else:
-            return '$'
         
     if st.button("Predict"):
         if ticker_placeholder:
